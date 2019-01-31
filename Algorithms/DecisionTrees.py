@@ -1,4 +1,5 @@
 from collections import Counter
+from sklearn import tree
 
 ##gini impurity calculation - to be calculated on the leaves of the dec. tree 
 
@@ -58,11 +59,36 @@ def split(dataset, labels, column):
         label_subsets.append(new_label_subset)
     return data_subsets, label_subsets
 	
-# split_data, split_labels = split(cars, car_labels, 3)
+def find_best_split(dataset, labels):
+    best_gain = 0
+    best_feature = 0
+    for feature in range(len(dataset[0])):
+        data_subsets, label_subsets = split(dataset, labels, feature)
+        gain = information_gain(labels, label_subsets)
+        if gain > best_gain:
+            best_gain, best_feature = gain, feature
+    return best_feature, best_gain
+	
+def build_tree(data, labels):
+  best_feature, best_gain = find_best_split(data, labels)
+  if best_gain == 0:
+    return Counter(labels)
+  data_subsets, label_subsets = split(data, labels, best_feature)
+  branches = []
+  for i in range(len(data_subsets)):
+    branch = build_tree(data_subsets[i], label_subsets[i])
+    branches.append(branch)
+  return branches
+  
+# tree = build_tree(car_data, car_labels)
+# print_tree(tree) 	
+	
+print(Counter(car_labels))
+#split_data, split_labels = split(cars, car_labels, 3)
 # print(information_gain(car_labels, split_labels)) ##gives info gain for one feature at index 3
 
-for feature in range(len(cars[0])):  ##loops through dataset and prints the info_gain from each feature 
-    split_data, split_labels = split(cars, car_labels, feature) 
-    print(information_gain(car_labels, split_labels))
+# for feature in range(len(cars[0])):  ##loops through dataset and prints the info_gain from each feature 
+    # split_data, split_labels = split(cars, car_labels, feature) 
+    # print(information_gain(car_labels, split_labels))
 
 
