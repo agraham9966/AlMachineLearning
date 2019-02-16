@@ -2,7 +2,8 @@ from six.moves import urllib
 from sklearn.datasets import fetch_mldata
 from sklearn.linear_model import SGDClassifier 
 from sklearn.model_selection import StratifiedKFold
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, cross_val_predict 
+from sklearn.metrics import confusion_matrix 
 from sklearn.base import clone 
 import matplotlib
 import matplotlib.pyplot as plt 
@@ -24,7 +25,7 @@ def data_down():
     return mnist_path
 
 #run this if it is the first time or you need to update
-# mnist_path = data_down()
+#mnist_path = data_down()
 
 #since we already download the dataset, we could directly use them
 mnist_path = "./mnist-original.mat"
@@ -57,24 +58,33 @@ sgd_clf.fit(X_train, y_train_5)
 print(sgd_clf.predict([some_digit])) 
 
 #####performance measures - Stratified Cross Validation 
-skfolds = StratifiedKFold(n_splits=3, random_state=42) 
+# skfolds = StratifiedKFold(n_splits=3, random_state=42) 
 
-for train_index, test_index in skfolds.split(X_train, y_train_5): 
-    clone_clf = clone(sgd_clf) 
-    X_train_folds = X_train[train_index]
-    y_train_folds = y_train_5[train_index]
-    X_test_fold = X_train[test_index] 
-    y_test_fold = y_train_5[test_index] 
+# for train_index, test_index in skfolds.split(X_train, y_train_5): 
+    # clone_clf = clone(sgd_clf) 
+    # X_train_folds = X_train[train_index]
+    # y_train_folds = y_train_5[train_index]
+    # X_test_fold = X_train[test_index] 
+    # y_test_fold = y_train_5[test_index] 
 
-    clone_clf.fit(X_train_folds, y_train_folds) 
-    y_pred = clone_clf.predict(X_test_fold) 
-    n_correct = sum(y_pred == y_test_fold) 
-    print(n_correct / len(y_pred))
+    # clone_clf.fit(X_train_folds, y_train_folds) 
+    # y_pred = clone_clf.predict(X_test_fold) 
+    # n_correct = sum(y_pred == y_test_fold) 
+    # print(n_correct / len(y_pred))
 
-##cross_val_score 
-cross_val_score(sgd_clf, X_train, y_train_5, cv=3, scoring='accuracy') 
+# ##cross_val_score 
+# cross_val_score(sgd_clf, X_train, y_train_5, cv=3, scoring='accuracy') 
 
 #########using confusion matrix to eval. performance of classifier 
+y_train_pred = cross_val_predict(sgd_clf, X_train, y_train_5, cv=3)
+#cross_val_predict performs k-folds- but returns predictions made on each test fold.
+print(confusion_matrix(y_train_5, y_train_pred)) 
+#first row represents non-5 images (53000 correctly classed as non-5s, )
+##  [true-negative, false-pos
+#    false-negative, true-pos]
+ 
+#   [non-5s corr classified, non-5s misclassified as 5
+#    5s classed as non 5s, 5s classed as 5s]
 
 
 
