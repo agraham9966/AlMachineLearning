@@ -1,12 +1,21 @@
 import matplotlib.pyplot as plt 
 import matplotlib
-import sys, os 
+from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd 
 
 
-
 def prep_train_data(train_data): 
+    train_data_df = pd.read_csv(train_data)
+    y_train = np.array(train_data_df['label'])
+    X_train = np.array(train_data_df.drop(['label'], axis = 1))
+    #X_train = X_train.reshape(42000, 28, 28, 1)   #reshape n-features into 2d array 
+    X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size = 0.2, random_state = 101)
+  
+    return X_train, X_test, y_train, y_test 
+  
+ 
+def prep_train_data_nosplit(train_data): 
     train_data = pd.read_csv(train_data) 
     data_train_num = train_data.iloc[:, 1:]
     data_train_labels = train_data.iloc[:, 0:1]
@@ -27,9 +36,12 @@ def show_digit_image(train_data, index):
     plt.show()
 	
     label = train_data.iloc[index, 0]
-    print "image label = {}".format(label) 
+    print("image label = {}".format(label)) 
 	
     return
 	
+
 	
-train_data, train_labels = prep_train_data(sys.argv[1]) 
+
+
+
